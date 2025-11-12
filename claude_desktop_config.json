@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "autofixture": {
+      "command": "/Users/admin/dev/mcp/mcp-wrapper.sh",
+      "args": [],
+      "env": {}
+    }
+  }
+}

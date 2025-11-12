@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  autofixture-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autofixture-mcp-server
+    image: autofixture-mcp-server:latest
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    # MCP servers use stdio, so we use stdin_open and tty
+    # The container stays running and can be accessed via docker exec
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
