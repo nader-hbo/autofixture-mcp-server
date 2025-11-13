@@ -1,18 +1,17 @@
 #!/usr/bin/env node
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   Tool,
-} from "@modelcontextprotocol/sdk/types.js";
-import axios from "axios";
-import * as cheerio from "cheerio";
+} from '@modelcontextprotocol/sdk/types.js';
+import axios from 'axios';
 
 // AutoFixture documentation and API reference data
 const AUTOFIXTURE_DOCS = {
   quickStart: {
-    title: "Quick Start Guide",
+    title: 'Quick Start Guide',
     content: `AutoFixture is a library for .NET designed to minimize the 'Arrange' phase of unit tests.
 
 Basic Usage:
@@ -28,123 +27,123 @@ var myClass = fixture.Create<MyClass>();`,
   },
   coreClasses: {
     Fixture: {
-      description: "The main class for creating anonymous test data",
+      description: 'The main class for creating anonymous test data',
       methods: [
         {
-          name: "Create<T>()",
-          description: "Creates an anonymous variable of type T",
-          example: "var result = fixture.Create<int>(); // Returns a random int",
+          name: 'Create<T>()',
+          description: 'Creates an anonymous variable of type T',
+          example: 'var result = fixture.Create<int>(); // Returns a random int',
         },
         {
-          name: "CreateMany<T>()",
-          description: "Creates multiple anonymous variables of type T",
-          example: "var results = fixture.CreateMany<string>(5); // Returns 5 strings",
+          name: 'CreateMany<T>()',
+          description: 'Creates multiple anonymous variables of type T',
+          example: 'var results = fixture.CreateMany<string>(5); // Returns 5 strings',
         },
         {
-          name: "Build<T>()",
-          description: "Returns a builder for customizing object creation",
+          name: 'Build<T>()',
+          description: 'Returns a builder for customizing object creation',
           example: "var customer = fixture.Build<Customer>().With(x => x.Name, 'John').Create();",
         },
         {
-          name: "Freeze<T>()",
-          description: "Creates and caches an instance for consistent reuse",
-          example: "var frozen = fixture.Freeze<Customer>(); // Same instance returned",
+          name: 'Freeze<T>()',
+          description: 'Creates and caches an instance for consistent reuse',
+          example: 'var frozen = fixture.Freeze<Customer>(); // Same instance returned',
         },
         {
-          name: "Inject<T>(value)",
-          description: "Injects a specific value to be used for type T",
-          example: "fixture.Inject<int>(42); // All Create<int>() calls return 42",
+          name: 'Inject<T>(value)',
+          description: 'Injects a specific value to be used for type T',
+          example: 'fixture.Inject<int>(42); // All Create<int>() calls return 42',
         },
         {
-          name: "Customize(customization)",
-          description: "Applies a customization to the fixture",
-          example: "fixture.Customize(new AutoMoqCustomization());",
+          name: 'Customize(customization)',
+          description: 'Applies a customization to the fixture',
+          example: 'fixture.Customize(new AutoMoqCustomization());',
         },
       ],
     },
     IFixture: {
-      description: "Interface implemented by Fixture for dependency injection",
-      usage: "Use IFixture in constructor parameters for better testability",
+      description: 'Interface implemented by Fixture for dependency injection',
+      usage: 'Use IFixture in constructor parameters for better testability',
     },
   },
   packages: {
     core: [
       {
-        name: "AutoFixture",
-        description: "Core library for generating anonymous test data",
-        install: "Install-Package AutoFixture",
+        name: 'AutoFixture',
+        description: 'Core library for generating anonymous test data',
+        install: 'Install-Package AutoFixture',
       },
       {
-        name: "AutoFixture.SeedExtensions",
-        description: "Extensions for seeding data generation",
-        install: "Install-Package AutoFixture.SeedExtensions",
+        name: 'AutoFixture.SeedExtensions',
+        description: 'Extensions for seeding data generation',
+        install: 'Install-Package AutoFixture.SeedExtensions',
       },
       {
-        name: "AutoFixture.Idioms",
-        description: "Assertions for testing code idioms",
-        install: "Install-Package AutoFixture.Idioms",
+        name: 'AutoFixture.Idioms',
+        description: 'Assertions for testing code idioms',
+        install: 'Install-Package AutoFixture.Idioms',
       },
     ],
     mocking: [
       {
-        name: "AutoFixture.AutoMoq",
-        description: "Integration with Moq mocking library",
-        install: "Install-Package AutoFixture.AutoMoq",
-        usage: "fixture.Customize(new AutoMoqCustomization());",
+        name: 'AutoFixture.AutoMoq',
+        description: 'Integration with Moq mocking library',
+        install: 'Install-Package AutoFixture.AutoMoq',
+        usage: 'fixture.Customize(new AutoMoqCustomization());',
       },
       {
-        name: "AutoFixture.AutoNSubstitute",
-        description: "Integration with NSubstitute mocking library",
-        install: "Install-Package AutoFixture.AutoNSubstitute",
-        usage: "fixture.Customize(new AutoNSubstituteCustomization());",
+        name: 'AutoFixture.AutoNSubstitute',
+        description: 'Integration with NSubstitute mocking library',
+        install: 'Install-Package AutoFixture.AutoNSubstitute',
+        usage: 'fixture.Customize(new AutoNSubstituteCustomization());',
       },
       {
-        name: "AutoFixture.AutoFakeItEasy",
-        description: "Integration with FakeItEasy mocking library",
-        install: "Install-Package AutoFixture.AutoFakeItEasy",
-        usage: "fixture.Customize(new AutoFakeItEasyCustomization());",
+        name: 'AutoFixture.AutoFakeItEasy',
+        description: 'Integration with FakeItEasy mocking library',
+        install: 'Install-Package AutoFixture.AutoFakeItEasy',
+        usage: 'fixture.Customize(new AutoFakeItEasyCustomization());',
       },
     ],
     testing: [
       {
-        name: "AutoFixture.Xunit2",
-        description: "Integration with xUnit.net v2",
-        install: "Install-Package AutoFixture.Xunit2",
-        usage: "[Theory, AutoData] public void Test(int value) { }",
+        name: 'AutoFixture.Xunit2',
+        description: 'Integration with xUnit.net v2',
+        install: 'Install-Package AutoFixture.Xunit2',
+        usage: '[Theory, AutoData] public void Test(int value) { }',
       },
       {
-        name: "AutoFixture.NUnit3",
-        description: "Integration with NUnit v3",
-        install: "Install-Package AutoFixture.NUnit3",
-        usage: "[Test, AutoData] public void Test(int value) { }",
+        name: 'AutoFixture.NUnit3',
+        description: 'Integration with NUnit v3',
+        install: 'Install-Package AutoFixture.NUnit3',
+        usage: '[Test, AutoData] public void Test(int value) { }',
       },
     ],
   },
   commonPatterns: [
     {
-      name: "Basic Object Creation",
+      name: 'Basic Object Creation',
       code: `var fixture = new Fixture();
 var customer = fixture.Create<Customer>();`,
     },
     {
-      name: "Customizing Properties",
+      name: 'Customizing Properties',
       code: `var customer = fixture.Build<Customer>()
     .With(x => x.Name, "John Doe")
     .Without(x => x.Address)
     .Create();`,
     },
     {
-      name: "Creating Lists",
+      name: 'Creating Lists',
       code: `var customers = fixture.CreateMany<Customer>(10).ToList();`,
     },
     {
-      name: "Using AutoMoq",
+      name: 'Using AutoMoq',
       code: `var fixture = new Fixture()
     .Customize(new AutoMoqCustomization());
 var service = fixture.Create<MyService>(); // Dependencies auto-mocked`,
     },
     {
-      name: "Using with xUnit",
+      name: 'Using with xUnit',
       code: `[Theory, AutoData]
 public void Test_WithAutoData(int number, string text, Customer customer)
 {
@@ -152,24 +151,24 @@ public void Test_WithAutoData(int number, string text, Customer customer)
 }`,
     },
     {
-      name: "Freezing Instances",
+      name: 'Freezing Instances',
       code: `var fixture = new Fixture();
 var customer = fixture.Freeze<Customer>();
 var order = fixture.Create<Order>(); // Order.Customer is same instance`,
     },
     {
-      name: "Injecting Specific Values",
+      name: 'Injecting Specific Values',
       code: `fixture.Inject<ILogger>(new ConsoleLogger());
 var service = fixture.Create<MyService>(); // Uses ConsoleLogger`,
     },
   ],
   bestPractices: [
-    "Use AutoFixture to reduce test maintenance by avoiding hard-coded test data",
-    "Freeze dependencies when you need to verify interactions on the same instance",
-    "Use Build<T>() for fine-grained control over object creation",
-    "Combine AutoFixture with mocking libraries for comprehensive test setup",
-    "Use [AutoData] attributes to simplify test method signatures",
-    "Create custom ICustomization implementations for domain-specific test data",
+    'Use AutoFixture to reduce test maintenance by avoiding hard-coded test data',
+    'Freeze dependencies when you need to verify interactions on the same instance',
+    'Use Build<T>() for fine-grained control over object creation',
+    'Combine AutoFixture with mocking libraries for comprehensive test setup',
+    'Use [AutoData] attributes to simplify test method signatures',
+    'Create custom ICustomization implementations for domain-specific test data',
   ],
 };
 
@@ -179,8 +178,8 @@ class AutoFixtureServer {
   constructor() {
     this.server = new Server(
       {
-        name: "autofixture-mcp-server",
-        version: "1.0.0",
+        name: 'autofixture-mcp-server',
+        version: '1.0.0',
       },
       {
         capabilities: {
@@ -195,10 +194,10 @@ class AutoFixtureServer {
 
   private setupErrorHandling(): void {
     this.server.onerror = (error) => {
-      console.error("[MCP Error]", error);
+      console.error('[MCP Error]', error);
     };
 
-    process.on("SIGINT", async () => {
+    process.on('SIGINT', async () => {
       await this.server.close();
       process.exit(0);
     });
@@ -210,84 +209,85 @@ class AutoFixtureServer {
       return {
         tools: [
           {
-            name: "get_quick_start",
-            description: "Get AutoFixture quick start guide and basic usage examples",
+            name: 'get_quick_start',
+            description: 'Get AutoFixture quick start guide and basic usage examples',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {},
             },
           },
           {
-            name: "search_methods",
-            description: "Search for AutoFixture methods and their usage",
+            name: 'search_methods',
+            description: 'Search for AutoFixture methods and their usage',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 query: {
-                  type: "string",
+                  type: 'string',
                   description: "Search query for method names (e.g., 'Create', 'Build', 'Freeze')",
                 },
               },
-              required: ["query"],
+              required: ['query'],
             },
           },
           {
-            name: "get_class_info",
-            description: "Get detailed information about a specific AutoFixture class",
+            name: 'get_class_info',
+            description: 'Get detailed information about a specific AutoFixture class',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 className: {
-                  type: "string",
+                  type: 'string',
                   description: "Name of the class (e.g., 'Fixture', 'IFixture')",
                 },
               },
-              required: ["className"],
+              required: ['className'],
             },
           },
           {
-            name: "get_packages",
-            description: "Get list of AutoFixture NuGet packages and their purposes",
+            name: 'get_packages',
+            description: 'Get list of AutoFixture NuGet packages and their purposes',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 category: {
-                  type: "string",
+                  type: 'string',
                   description: "Package category: 'core', 'mocking', 'testing', or 'all'",
-                  enum: ["core", "mocking", "testing", "all"],
+                  enum: ['core', 'mocking', 'testing', 'all'],
                 },
               },
             },
           },
           {
-            name: "get_usage_pattern",
-            description: "Get common usage patterns and code examples",
+            name: 'get_usage_pattern',
+            description: 'Get common usage patterns and code examples',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 pattern: {
-                  type: "string",
-                  description: "Pattern name or keyword (e.g., 'customizing', 'lists', 'automaq', 'xunit')",
+                  type: 'string',
+                  description:
+                    "Pattern name or keyword (e.g., 'customizing', 'lists', 'automaq', 'xunit')",
                 },
               },
             },
           },
           {
-            name: "get_best_practices",
-            description: "Get AutoFixture best practices and recommendations",
+            name: 'get_best_practices',
+            description: 'Get AutoFixture best practices and recommendations',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {},
             },
           },
           {
-            name: "fetch_github_docs",
-            description: "Fetch latest documentation from AutoFixture GitHub repository",
+            name: 'fetch_github_docs',
+            description: 'Fetch latest documentation from AutoFixture GitHub repository',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 topic: {
-                  type: "string",
+                  type: 'string',
                   description: "Documentation topic to fetch (e.g., 'README', 'cheatsheet', 'faq')",
                 },
               },
@@ -303,32 +303,32 @@ class AutoFixtureServer {
         const { name, arguments: args } = request.params;
 
         switch (name) {
-          case "get_quick_start":
+          case 'get_quick_start':
             return this.getQuickStart();
 
-          case "search_methods":
+          case 'search_methods':
             return this.searchMethods(args?.query as string);
 
-          case "get_class_info":
+          case 'get_class_info':
             return this.getClassInfo(args?.className as string);
 
-          case "get_packages":
+          case 'get_packages':
             return this.getPackages(args?.category as string);
 
-          case "get_usage_pattern":
+          case 'get_usage_pattern':
             return this.getUsagePattern(args?.pattern as string);
 
-          case "get_best_practices":
+          case 'get_best_practices':
             return this.getBestPractices();
 
-          case "fetch_github_docs":
+          case 'fetch_github_docs':
             return await this.fetchGitHubDocs(args?.topic as string);
 
           default:
             return {
               content: [
                 {
-                  type: "text",
+                  type: 'text',
                   text: `Unknown tool: ${name}`,
                 },
               ],
@@ -338,7 +338,7 @@ class AutoFixtureServer {
         return {
           content: [
             {
-              type: "text",
+              type: 'text',
               text: `Error: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
@@ -353,7 +353,7 @@ class AutoFixtureServer {
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: `# ${qs.title}\n\n${qs.content}`,
         },
       ],
@@ -365,8 +365,8 @@ class AutoFixtureServer {
       return {
         content: [
           {
-            type: "text",
-            text: "Please provide a search query for method names.",
+            type: 'text',
+            text: 'Please provide a search query for method names.',
           },
         ],
       };
@@ -385,7 +385,7 @@ class AutoFixtureServer {
 
     if (matchingMethods.length > 0) {
       results.push({
-        class: "Fixture",
+        class: 'Fixture',
         methods: matchingMethods,
       });
     }
@@ -394,7 +394,7 @@ class AutoFixtureServer {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `No methods found matching "${query}". Try searching for: Create, Build, Freeze, Inject, or Customize.`,
           },
         ],
@@ -414,7 +414,7 @@ class AutoFixtureServer {
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: output,
         },
       ],
@@ -427,22 +427,23 @@ class AutoFixtureServer {
       return {
         content: [
           {
-            type: "text",
-            text: `Please specify a class name. Available classes: ${availableClasses.join(", ")}`,
+            type: 'text',
+            text: `Please specify a class name. Available classes: ${availableClasses.join(', ')}`,
           },
         ],
       };
     }
 
-    const classData = AUTOFIXTURE_DOCS.coreClasses[className as keyof typeof AUTOFIXTURE_DOCS.coreClasses];
+    const classData =
+      AUTOFIXTURE_DOCS.coreClasses[className as keyof typeof AUTOFIXTURE_DOCS.coreClasses];
     if (!classData) {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Class "${className}" not found. Available classes: ${Object.keys(
               AUTOFIXTURE_DOCS.coreClasses
-            ).join(", ")}`,
+            ).join(', ')}`,
           },
         ],
       };
@@ -450,8 +451,8 @@ class AutoFixtureServer {
 
     let output = `# ${className}\n\n${classData.description}\n\n`;
 
-    if ("methods" in classData) {
-      output += "## Methods\n\n";
+    if ('methods' in classData) {
+      output += '## Methods\n\n';
       for (const method of classData.methods) {
         output += `### ${method.name}\n`;
         output += `${method.description}\n\n`;
@@ -459,14 +460,14 @@ class AutoFixtureServer {
       }
     }
 
-    if ("usage" in classData) {
+    if ('usage' in classData) {
       output += `## Usage\n${classData.usage}\n\n`;
     }
 
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: output,
         },
       ],
@@ -474,10 +475,10 @@ class AutoFixtureServer {
   }
 
   private getPackages(category?: string) {
-    const cat = category || "all";
-    let output = "# AutoFixture Packages\n\n";
+    const cat = category || 'all';
+    let output = '# AutoFixture Packages\n\n';
 
-    const categories = cat === "all" ? ["core", "mocking", "testing"] : [cat];
+    const categories = cat === 'all' ? ['core', 'mocking', 'testing'] : [cat];
 
     for (const c of categories) {
       const packages = AUTOFIXTURE_DOCS.packages[c as keyof typeof AUTOFIXTURE_DOCS.packages];
@@ -489,7 +490,7 @@ class AutoFixtureServer {
         output += `### ${pkg.name}\n`;
         output += `${pkg.description}\n\n`;
         output += `**Installation:**\n\`\`\`\n${pkg.install}\n\`\`\`\n\n`;
-        if ("usage" in pkg) {
+        if ('usage' in pkg) {
           output += `**Usage:**\n\`\`\`csharp\n${pkg.usage}\n\`\`\`\n\n`;
         }
       }
@@ -498,7 +499,7 @@ class AutoFixtureServer {
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: output,
         },
       ],
@@ -511,8 +512,8 @@ class AutoFixtureServer {
       return {
         content: [
           {
-            type: "text",
-            text: `# Common Usage Patterns\n\nAvailable patterns:\n${patternNames.map((n) => `- ${n}`).join("\n")}`,
+            type: 'text',
+            text: `# Common Usage Patterns\n\nAvailable patterns:\n${patternNames.map((n) => `- ${n}`).join('\n')}`,
           },
         ],
       };
@@ -521,15 +522,14 @@ class AutoFixtureServer {
     const lowerPattern = pattern.toLowerCase();
     const matchingPatterns = AUTOFIXTURE_DOCS.commonPatterns.filter(
       (p) =>
-        p.name.toLowerCase().includes(lowerPattern) ||
-        p.code.toLowerCase().includes(lowerPattern)
+        p.name.toLowerCase().includes(lowerPattern) || p.code.toLowerCase().includes(lowerPattern)
     );
 
     if (matchingPatterns.length === 0) {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `No patterns found matching "${pattern}".`,
           },
         ],
@@ -545,7 +545,7 @@ class AutoFixtureServer {
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: output,
         },
       ],
@@ -553,7 +553,7 @@ class AutoFixtureServer {
   }
 
   private getBestPractices() {
-    let output = "# AutoFixture Best Practices\n\n";
+    let output = '# AutoFixture Best Practices\n\n';
     for (let i = 0; i < AUTOFIXTURE_DOCS.bestPractices.length; i++) {
       output += `${i + 1}. ${AUTOFIXTURE_DOCS.bestPractices[i]}\n`;
     }
@@ -561,7 +561,7 @@ class AutoFixtureServer {
     return {
       content: [
         {
-          type: "text",
+          type: 'text',
           text: output,
         },
       ],
@@ -570,31 +570,31 @@ class AutoFixtureServer {
 
   private async fetchGitHubDocs(topic?: string) {
     try {
-      const topicLower = topic?.toLowerCase() || "readme";
-      let url = "https://raw.githubusercontent.com/AutoFixture/AutoFixture/master/";
+      const topicLower = topic?.toLowerCase() || 'readme';
+      let url = 'https://raw.githubusercontent.com/AutoFixture/AutoFixture/master/';
 
-      if (topicLower.includes("readme")) {
-        url += "README.md";
-      } else if (topicLower.includes("cheat")) {
-        url += "CHEATSHEET.md";
-      } else if (topicLower.includes("faq")) {
-        url += "FAQ.md";
+      if (topicLower.includes('readme')) {
+        url += 'README.md';
+      } else if (topicLower.includes('cheat')) {
+        url += 'CHEATSHEET.md';
+      } else if (topicLower.includes('faq')) {
+        url += 'FAQ.md';
       } else {
-        url += "README.md";
+        url += 'README.md';
       }
 
       const response = await axios.get(url, {
         timeout: 10000,
         headers: {
-          "User-Agent": "AutoFixture-MCP-Server/1.0",
+          'User-Agent': 'AutoFixture-MCP-Server/1.0',
         },
       });
 
       return {
         content: [
           {
-            type: "text",
-            text: `# GitHub Documentation: ${topic || "README"}\n\n${response.data}`,
+            type: 'text',
+            text: `# GitHub Documentation: ${topic || 'README'}\n\n${response.data}`,
           },
         ],
       };
@@ -602,7 +602,7 @@ class AutoFixtureServer {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Failed to fetch GitHub documentation: ${
               error instanceof Error ? error.message : String(error)
             }`,
@@ -616,7 +616,7 @@ class AutoFixtureServer {
   async run(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error("AutoFixture MCP Server running on stdio");
+    console.error('AutoFixture MCP Server running on stdio');
   }
 }
 
